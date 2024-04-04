@@ -16,7 +16,7 @@ import AuditoTranslate from './pages/components/audio_translate/index.tsx'
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <App />,
+    element: (<div>aaa</div>),
   },
   {
     path: '/audio_translate',
@@ -29,8 +29,9 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthWithUserpool />,
+    // element: <App />,
     children: routes,
-  }
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
