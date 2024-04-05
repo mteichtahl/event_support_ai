@@ -18,7 +18,9 @@ import {
 import {
   LanguageCode
 } from "@aws-sdk/client-transcribe-streaming";
-import useSpeech2Text from "../../hooks/useRealtimeTranslate";
+import useSpeech2Text from "../../hooks/useRealtimeTranslate.ts";
+import useChat from '../../hooks/useChat.ts';
+
 
 
 interface Language {
@@ -115,16 +117,16 @@ export default function App() {
     clear
   } = useTranslatePageState();
 
-  // const { pathname, search } = useLocation();
+  const { pathname, search } = useLocation();
 
-  // const {
-  //   getModelId,
-  //   setModelId,
-  //   loading,
-  //   messages,
-  //   postChat,
-  //   clear: clearChat,
-  // } = useChat(pathname);
+  const {
+    getModelId,
+    setModelId,
+    loading,
+    messages,
+    postChat,
+    clear: clearChat,
+  } = useChat(pathname);
   // const { modelIds: availableModels } = MODELS;
   // const modelId = getModelId();
   // const prompter = useMemo(() => {
@@ -223,13 +225,13 @@ export default function App() {
     document.body.removeChild(link);
   }
 
-  // const onClickSummarizeExec = useCallback(() => {
-  //   if (loading) return;
-  //   const sentence = transcripts.map(t => t.transcript).join('\n'); 
+  const onClickSummarizeExec = useCallback(() => {
+    if (loading) return;
+    const sentence = transcripts.map(t => t.transcript).join('\n'); 
     
-  //   getSummary(sentence, '');
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [transcripts, loading]);
+    getSummary(sentence, '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [transcripts, loading]);
 
   return (
     <SpaceBetween size="s">
@@ -243,8 +245,8 @@ export default function App() {
         <Grid
           gridDefinition={
             [
-              { colspan: 4 }, { colspan: 4 },
-              { colspan: 4 }, { colspan: 12 }
+              { colspan: 4 }, { colspan: 4 }, { colspan: 4 }, 
+              { colspan: 12 }
             ]
           }
         >
@@ -295,6 +297,7 @@ export default function App() {
 
           <div>
             <SpaceBetween 
+              direction="horizontal"
               alignItems="end"
               size="xs"
             >
@@ -303,6 +306,20 @@ export default function App() {
                 variant={recording ? 'primary' : 'normal'}                
               >
                 {recording ? 'Recording' : 'Start'}
+              </Button>
+
+              <Button 
+                onClick={onCliclClear}
+              >
+                Clear
+              </Button>
+
+              <Button onClick={exportHistory}>
+                Export
+              </Button>
+
+              <Button onClick={onClickSummarizeExec}>
+                 Summary
               </Button>
             </SpaceBetween>
           </div>
@@ -316,14 +333,14 @@ export default function App() {
         header={
           <Header
             variant="h2"
-            description="Container description"
+            description={sourceLanguage.label + 'から' + destLanguage.label + 'への翻訳'}
           >
-            Container title
+            翻訳結果
           </Header>
         }
       >
         <Grid
-          gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}
+          gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
         >
           <div>
             <SpaceBetween 
@@ -358,6 +375,39 @@ export default function App() {
             </SpaceBetween>
           </div>
           
+          <div>
+            <SpaceBetween 
+              alignItems="start"
+
+              size="xs"
+            >
+              {reversedTranslated.length === 0 && 
+                <Container>
+                  <Box 
+                    variant="p"
+                    fontSize={
+                      fontSize?.value as BoxProps.FontSize 
+                    }
+                  >
+                    Translated text will be appear here  
+                  </Box>
+                </Container>
+              }
+              {reversedTranslated.map((t, i) => (
+                <Container>
+                  <Box 
+                    variant="p"
+                    fontSize={
+                      fontSize?.value as BoxProps.FontSize 
+                    }
+                  >
+                    {t.translated}
+                  </Box>
+                </Container>
+              ))}
+            </SpaceBetween>
+          </div>
+
           <div>
             <SpaceBetween 
               alignItems="start"
