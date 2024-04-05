@@ -292,7 +292,9 @@ export default function App() {
             />
           </div>
 
-          <div>
+          <Box
+            float="right"
+          >
             <SpaceBetween 
               direction="horizontal"
               alignItems="end"
@@ -319,7 +321,7 @@ export default function App() {
                  Summary
               </Button> */}
             </SpaceBetween>
-          </div>
+          </Box>
           
         </Grid>
 
