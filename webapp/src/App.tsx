@@ -21,6 +21,7 @@ import { Outlet } from 'react-router-dom';
 import { I18nProvider } from '@cloudscape-design/components/i18n';
 import messages from '@cloudscape-design/components/i18n/messages/all.en';
 
+import TopNavigation from "./pages/components/topNavigation"
 import SideNavigation from "./pages/components/sideNavigation"
 
 const LOCALE = 'ja';
@@ -29,16 +30,17 @@ const LOCALE = 'ja';
 export default function App() {
   return (
     <I18nProvider locale={LOCALE} messages={[messages]}>
+      <TopNavigation />
       <AppLayout
         maxContentWidth={Number.MAX_VALUE}
-        breadcrumbs={
-          <BreadcrumbGroup
-            items={[
-              { text: 'Home', href: '/' },
-              { text: 'audio_translate', href: '/audio_translate' },
-            ]}
-          />
-        }
+        // breadcrumbs={
+        //   <BreadcrumbGroup
+        //     items={[
+        //       { text: 'Home', href: '/' },
+        //       { text: 'audio_translate', href: '/audio_translate' },
+        //     ]}
+        //   />
+        // }
         // navigationHide={true}
         // navigationOpen={false}
         navigation={

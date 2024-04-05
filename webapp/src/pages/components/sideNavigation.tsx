@@ -8,7 +8,7 @@ export default () => {
   return (
     <SideNavigation
       activeHref={activeHref}
-      header={{ href: "#/", text: "Service name" }}
+      header={{ href: "#/", text: "メニュー" }}
       // onFollow={event => {
       //   if (!event.detail.external) {
       //     event.preventDefault();

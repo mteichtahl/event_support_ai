@@ -1,5 +1,9 @@
-import { Amplify, I18n } from 'aws-amplify';
-import { Authenticator, translations } from '@aws-amplify/ui-react';
+import { Amplify } from 'aws-amplify';
+import { Authenticator } from '@aws-amplify/ui-react';
+import {
+  AppLayout
+} from "@cloudscape-design/components";
+
 import App from '../App.tsx';
 
 const selfSignUpEnabled: boolean =
@@ -15,21 +19,22 @@ const AuthWithUserpool: React.FC = () => {
     },
   });
 
-  I18n.putVocabularies(translations);
-  I18n.setLanguage('ja');
-
   return (
-    <Authenticator
-      hideSignUp={!selfSignUpEnabled}
-      components={{
-        Header: () => (
-          <div className="text-aws-font-color mb-5 mt-10 flex justify-center text-3xl">
-            イベントサポーター
-          </div>
-        ),
-      }}>
-      <App />
-    </Authenticator>
+    <AppLayout 
+    navigationHide={true}
+    toolsHide={true}
+    disableContentPaddings={true}
+    maxContentWidth={Number.MAX_VALUE}
+    content={
+      <Authenticator
+        hideSignUp={!selfSignUpEnabled}
+      >
+        <App />
+      </Authenticator>
+    }
+    />
+      
+    
   );
 };
 

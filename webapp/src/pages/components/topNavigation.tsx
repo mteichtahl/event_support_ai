@@ -1,7 +1,24 @@
-import * as React from "react";
+import { useCallback, useMemo } from 'react';
 import TopNavigation from "@cloudscape-design/components/top-navigation";
+import useSWR from 'swr';
+import { Auth } from 'aws-amplify';
 
 const MyTopNavigation: React.FC = () => {
+
+  const signOut = useCallback(async () => {
+    await Auth.signOut();
+  }, []);
+
+  const { data } = useSWR('user', async () => {
+    return await Auth.currentAuthenticatedUser();
+  });
+
+  const email = useMemo(() => {
+    return data?.signInUserSession?.idToken?.payload?.email ?? '';
+  }, [data]);
+  
+
+
   return (
     <TopNavigation
       identity={{
@@ -36,41 +53,23 @@ const MyTopNavigation: React.FC = () => {
         //     }
         //   ]
         // },
-        // {
-        //   type: "menu-dropdown",
-        //   text: "Customer Name",
-        //   description: "email@example.com",
-        //   iconName: "user-profile",
-        //   items: [
-        //     { id: "profile", text: "Profile" },
-        //     { id: "preferences", text: "Preferences" },
-        //     { id: "security", text: "Security" },
-        //     {
-        //       id: "support-group",
-        //       text: "Support",
-        //       items: [
-        //         {
-        //           id: "documentation",
-        //           text: "Documentation",
-        //           href: "#",
-        //           external: true,
-        //           externalIconAriaLabel:
-        //             " (opens in new tab)"
-        //         },
-        //         { id: "support", text: "Support" },
-        //         {
-        //           id: "feedback",
-        //           text: "Feedback",
-        //           href: "#",
-        //           external: true,
-        //           externalIconAriaLabel:
-        //             " (opens in new tab)"
-        //         }
-        //       ]
-        //     },
-        //     { id: "signout", text: "Sign out" }
-        //   ]
-        // }
+        {
+          type: "menu-dropdown",
+          text: email,
+          // description: "description",
+          iconName: "user-profile",
+          items: [
+            { 
+              id: "signout", 
+              text: "Sign out",
+            }
+          ],
+          onItemClick: (event) => {
+            if (event.detail.id === "signout") {
+              signOut();
+            }
+          }
+        }
       ]}
     />
   );
