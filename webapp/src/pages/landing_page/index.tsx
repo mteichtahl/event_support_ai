@@ -1,13 +1,10 @@
 import {
-  AppLayout,
-  BreadcrumbGroup,
   Container,
   ContentLayout,
   Header,
-  Link,
 } from '@cloudscape-design/components';
 
-import List from "../home/list"
+import List from "./list"
 
 
 

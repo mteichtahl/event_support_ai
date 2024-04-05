@@ -1,18 +1,5 @@
 import {
   AppLayout,
-  Box,
-  BreadcrumbGroup,
-  Cards,
-  Container,
-  ContentLayout,
-  Flashbar,
-  Grid,
-  Header,
-  HelpPanel,
-  Link,
-  SpaceBetween,
-  SplitPanel,
-  Textarea,
 } from '@cloudscape-design/components';
 import '@aws-amplify/ui-react/styles.css';
 
@@ -21,8 +8,8 @@ import { Outlet } from 'react-router-dom';
 import { I18nProvider } from '@cloudscape-design/components/i18n';
 import messages from '@cloudscape-design/components/i18n/messages/all.en';
 
-import TopNavigation from "./pages/components/topNavigation"
-import SideNavigation from "./pages/components/sideNavigation"
+import TopNavigation from "./components/topNavigation"
+import SideNavigation from "./components/sideNavigation"
 
 const LOCALE = 'ja';
 

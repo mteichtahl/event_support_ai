@@ -10,8 +10,8 @@ import AuthWithUserpool from './components/AuthWithUserpool';
 import './index.css'
 import "@cloudscape-design/global-styles/index.css"
 
-import LandingPage from './pages/components/landing_page/index.tsx'
-import AuditoTranslate from './pages/components/audio_translate/index.tsx'
+import LandingPage from './pages/landing_page/index.tsx'
+import AuditoTranslate from './pages/audio_translate/index.tsx'
 
 const routes: RouteObject[] = [
   {

@@ -18,8 +18,6 @@ export default () => {
       items={[
         { type: "link", text: "ホーム", href: "/" },
         { type: "link", text: "リアルタイム翻訳", href: "/audio_translate" },
-        { type: "link", text: "Page 3", href: "#/page3" },
-        { type: "link", text: "Page 4", href: "#/page4" },
         { type: "divider" }
       ]}
     />
