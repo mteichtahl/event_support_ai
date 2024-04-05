@@ -14,6 +14,8 @@ import {
   SplitPanel,
   Textarea,
 } from '@cloudscape-design/components';
+import '@aws-amplify/ui-react/styles.css';
+
 import { Outlet } from 'react-router-dom';
 
 import { I18nProvider } from '@cloudscape-design/components/i18n';

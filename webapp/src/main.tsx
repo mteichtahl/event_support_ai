@@ -7,16 +7,16 @@ import {
 } from "react-router-dom";
 import AuthWithUserpool from './components/AuthWithUserpool';
 
-import App from './App.tsx'
 import './index.css'
 import "@cloudscape-design/global-styles/index.css"
 
+import LandingPage from './pages/components/landing_page/index.tsx'
 import AuditoTranslate from './pages/components/audio_translate/index.tsx'
 
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: (<div>aaa</div>),
+    element: <LandingPage/>
   },
   {
     path: '/audio_translate',
@@ -29,7 +29,6 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthWithUserpool />,
-    // element: <App />,
     children: routes,
   },
 ]);
