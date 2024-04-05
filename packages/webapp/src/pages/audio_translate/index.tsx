@@ -18,10 +18,7 @@ import {
 import {
   LanguageCode
 } from "@aws-sdk/client-transcribe-streaming";
-import useSpeech2Text from "../../hooks/useRealtimeTranslate.ts";
-import useChat from '../../hooks/useChat.ts';
-
-
+import useSpeech2Text from "../../hooks/useRealtimeTranslate";
 
 interface Language {
   label: string;
@@ -117,16 +114,16 @@ export default function App() {
     clear
   } = useTranslatePageState();
 
-  const { pathname, search } = useLocation();
+  // const { pathname, search } = useLocation();
 
-  const {
-    getModelId,
-    setModelId,
-    loading,
-    messages,
-    postChat,
-    clear: clearChat,
-  } = useChat(pathname);
+  // const {
+  //   getModelId,
+  //   setModelId,
+  //   loading,
+  //   messages,
+  //   postChat,
+  //   clear: clearChat,
+  // } = useChat(pathname);
   // const { modelIds: availableModels } = MODELS;
   // const modelId = getModelId();
   // const prompter = useMemo(() => {
@@ -225,13 +222,13 @@ export default function App() {
     document.body.removeChild(link);
   }
 
-  const onClickSummarizeExec = useCallback(() => {
-    if (loading) return;
-    const sentence = transcripts.map(t => t.transcript).join('\n'); 
+  // const onClickSummarizeExec = useCallback(() => {
+  //   if (loading) return;
+  //   const sentence = transcripts.map(t => t.transcript).join('\n'); 
     
-    getSummary(sentence, '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [transcripts, loading]);
+  //   getSummary(sentence, '');
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [transcripts, loading]);
 
   return (
     <SpaceBetween size="s">
@@ -318,9 +315,9 @@ export default function App() {
                 Export
               </Button>
 
-              <Button onClick={onClickSummarizeExec}>
+              {/* <Button onClick={onClickSummarizeExec}>
                  Summary
-              </Button>
+              </Button> */}
             </SpaceBetween>
           </div>
           
