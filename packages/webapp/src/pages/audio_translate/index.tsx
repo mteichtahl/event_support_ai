@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 
@@ -18,7 +18,8 @@ import {
 import {
   LanguageCode
 } from "@aws-sdk/client-transcribe-streaming";
-import useSpeech2Text from "../../hooks/useRealtimeTranslate";
+import useTranscribe from "../../hooks/useTranscribe";
+import useTranslate from "../../hooks/useTranslate";
 
 interface Language {
   label: string;
@@ -32,8 +33,8 @@ type StateType = {
   destLanguage: Language;
   setDestLanguage: (label: string) => void;
 
-  summarizedSentence: string;
-  setSummarizedSentence: (s: string) => void;
+  // summarizedSentence: string;
+  // setSummarizedSentence: (s: string) => void;
   clear: () => void;
 };
 
@@ -62,7 +63,7 @@ const useTranslatePageState = create<StateType>((set) => {
     sourceLanguage: languages[0],
     destLanguage: languages[1],
 
-    summarizedSentence: '',
+    // summarizedSentence: '',
   };
   return {
     ...INIT_STATE,
@@ -79,26 +80,33 @@ const useTranslatePageState = create<StateType>((set) => {
       }));
     },
 
-    setSummarizedSentence: (s: string) => {
-      set(() => ({
-        summarizedSentence: s,
-      }));
-    },
+    // setSummarizedSentence: (s: string) => {
+    //   set(() => ({
+    //     summarizedSentence: s,
+    //   }));
+    // },
     clear: () => {
       set(INIT_STATE);
     },
   };
 });
 
-
-
-
 export default function App() {
   const { state } = useLocation();
-  const { startTranscription, stopTranscription, transcripts, recording, clearTranscripts } =
-  useSpeech2Text();
-  const { translated, startTranslate, clearTranslate } = useSpeech2Text();
-  const [fontSize, setFontSize] = useState<SelectProps.Option>();
+  const { 
+    startTranscription,
+    stopTranscription,
+    transcripts,
+    recording,
+    clearTranscripts,
+  } = useTranscribe();
+  const {
+    translated, 
+    startTranslate, 
+    clearTranslate
+  } = useTranslate();
+
+  const [fontSize, setFontSize] = useState<SelectProps.Option>({ label: "body-s", value: "body-s" });
 
   const reversedTranscripts = [...transcripts].reverse()
   const reversedTranslated = [...translated].reverse()
@@ -109,9 +117,9 @@ export default function App() {
     destLanguage,
     setDestLanguage,
 
-    summarizedSentence,
-    setSummarizedSentence,
-    clear
+    // summarizedSentence,
+    // setSummarizedSentence,
+    // clear
   } = useTranslatePageState();
 
   // const { pathname, search } = useLocation();
@@ -131,17 +139,18 @@ export default function App() {
   // }, [modelId]);
   
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onTranslateTextChange = useCallback(
     debounce(
       (
-        _item: any,
+        _item: {isPartial: boolean, transcript: string},
         _sourceLanguage: string,
         _destLanguage: string,
       ) => {
         startTranslate(_item, _sourceLanguage || 'ja' , _destLanguage || 'en')
-      }, 100
+      }, 1000
     ),
-    []
+    [startTranslate]
   )
   const transcriptsRef = useRef(transcripts); 
   useEffect(() => {
@@ -149,11 +158,11 @@ export default function App() {
     const added = transcripts.filter(item => !transcriptsRef.current.includes(item));
     // 追加要素のみ出力
     added.forEach((item) => {
-      // startTranslate(item, sourceLanguage.translateCode || 'ja' ,destLanguage.translateCode || 'en')
       onTranslateTextChange(item, sourceLanguage.translateCode || 'ja' ,destLanguage.translateCode || 'en')
     });
     transcriptsRef.current = transcripts;
     
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcripts]);
 
   useEffect(() => {
@@ -202,7 +211,7 @@ export default function App() {
     clearTranslate()
     clearTranscripts()
     // clearChat();
-    clear();
+    // clear();
   }
 
   const _startTranscription = () => {
@@ -339,9 +348,11 @@ export default function App() {
         }
       >
         <Grid
-          gridDefinition={[{ colspan: 4 }, { colspan: 4 }, { colspan: 4 }]}
+          gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}
         >
-          <div>
+          <div
+            key="transcribe"
+          >
             <SpaceBetween 
               alignItems="start"
               size="xs"
@@ -358,8 +369,11 @@ export default function App() {
                   </Box>
                 </Container>
               }
+              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
               {reversedTranscripts.map((t, i) => (
-                <Container>
+                <Container
+                  key={i}
+                >
                   <Box 
                     variant="p"
                     fontSize={
@@ -374,10 +388,11 @@ export default function App() {
             </SpaceBetween>
           </div>
           
-          <div>
+          <div
+            key="translate"
+          >
             <SpaceBetween 
               alignItems="start"
-
               size="xs"
             >
               {reversedTranslated.length === 0 && 
@@ -387,55 +402,28 @@ export default function App() {
                     fontSize={
                       fontSize?.value as BoxProps.FontSize 
                     }
+                    key={"reversedTranslated.length"}
                   >
                     Translated text will be appear here  
                   </Box>
                 </Container>
               }
+
+              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
               {reversedTranslated.map((t, i) => (
-                <Container>
+                <Container
+                  key={i}
+                >
                   <Box 
                     variant="p"
                     fontSize={
                       fontSize?.value as BoxProps.FontSize 
-                    }
+                    } 
                   >
                     {t.translated}
                   </Box>
                 </Container>
-              ))}
-            </SpaceBetween>
-          </div>
-
-          <div>
-            <SpaceBetween 
-              alignItems="start"
-
-              size="xs"
-            >
-              {reversedTranslated.length === 0 && 
-                <Container>
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    }
-                  >
-                    Translated text will be appear here  
-                  </Box>
-                </Container>
-              }
-              {reversedTranslated.map((t, i) => (
-                <Container>
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    }
-                  >
-                    {t.translated}
-                  </Box>
-                </Container>
+                
               ))}
             </SpaceBetween>
           </div>

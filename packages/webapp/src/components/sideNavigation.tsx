@@ -9,12 +9,12 @@ export default () => {
     <SideNavigation
       activeHref={activeHref}
       header={{ href: "#/", text: "メニュー" }}
-      // onFollow={event => {
-      //   if (!event.detail.external) {
-      //     event.preventDefault();
-      //     setActiveHref(event.detail.href);
-      //   }
-      // }}
+      onFollow={event => {
+        if (!event.detail.external) {
+          event.preventDefault();
+          setActiveHref(event.detail.href);
+        }
+      }}
       items={[
         { type: "link", text: "ホーム", href: "/" },
         { type: "link", text: "リアルタイム翻訳", href: "/audio_translate" },

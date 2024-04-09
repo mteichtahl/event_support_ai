@@ -5,7 +5,7 @@ import {
   RouterProvider,
   RouteObject
 } from "react-router-dom";
-import AuthWithUserpool from './components/AuthWithUserpool.tsx';
+import AuthWithUserpool from './components/authWithUserpool.tsx';
 
 import './index.css'
 import "@cloudscape-design/global-styles/index.css"
