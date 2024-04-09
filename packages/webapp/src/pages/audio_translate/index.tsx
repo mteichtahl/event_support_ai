@@ -4,6 +4,7 @@ import debounce from 'lodash.debounce';
 
 import { create } from 'zustand';
 import {
+  AppLayout,
   Button,
   Box,
   Container,
@@ -12,6 +13,7 @@ import {
   Select,
   SelectProps,
   SpaceBetween,
+  SplitPanel,
   TextContent,
   BoxProps
 } from '@cloudscape-design/components';
@@ -20,6 +22,7 @@ import {
 } from "@aws-sdk/client-transcribe-streaming";
 import useTranscribe from "../../hooks/useTranscribe";
 import useTranslate from "../../hooks/useTranslate";
+import SummaryContainer from "../../components/summaryContainer";
 
 interface Language {
   label: string;
@@ -240,197 +243,217 @@ export default function App() {
   // }, [transcripts, loading]);
 
   return (
-    <SpaceBetween size="s">
-      <Container
-        header={
-          <Header variant="h2" description="言語設定とか">
-            操作パネル
-          </Header>
-        }
-      >
-        <Grid
-          gridDefinition={
-            [
-              { colspan: 4 }, { colspan: 4 }, { colspan: 4 }, 
-              { colspan: 12 }
-            ]
-          }
-        >
-          <div>
-            <TextContent>
-              <p>入力言語</p>
-            </TextContent>
-            <Select
-              selectedOption={sourceLanguage}
-              options={languages.map((language) => (
-                { label: language.label, value: language.label }
-              ))}
-              onChange={(value) => setSourceLanguage(
-                value.detail.selectedOption.label ?? ''
-              )}
-            />
-          </div>
-          
-          <div>
-            <TextContent>
-              <p>出力言語</p>
-            </TextContent>
-            <Select
-              selectedOption={destLanguage}
-              options={languages.map((language) => (
-                { label: language.label, value: language.label }
-              ))}
-              onChange={(value) => setDestLanguage(
-                value.detail.selectedOption.label ?? ''
-              )}
-            />
-          </div>
-
-          <div>
-            <TextContent>
-              <p>フォントサイズ</p>
-            </TextContent>
-            <Select
-              selectedOption={fontSize ?? null}
-              options={fontSizes.map((fontSize) => (
-                { label: fontSize, value: fontSize }
-              ))}
-              onChange={(value) => setFontSize(
-                value.detail.selectedOption ?? null
-              )}
-            />
-          </div>
-
-          <Box
-            float="right"
-          >
-            <SpaceBetween 
-              direction="horizontal"
-              alignItems="end"
-              size="xs"
-            >
-              <Button
-                onClick={recording ? stopTranscription : _startTranscription}
-                variant={recording ? 'primary' : 'normal'}                
-              >
-                {recording ? 'Recording' : 'Start'}
-              </Button>
-
-              <Button 
-                onClick={onCliclClear}
-              >
-                Clear
-              </Button>
-
-              <Button onClick={exportHistory}>
-                Export
-              </Button>
-
-              {/* <Button onClick={onClickSummarizeExec}>
-                 Summary
-              </Button> */}
-            </SpaceBetween>
-          </Box>
-          
-        </Grid>
-
-
-      </Container>
-      
-      <Container
-        header={
-          <Header
-            variant="h2"
-            description={sourceLanguage.label + 'から' + destLanguage.label + 'への翻訳'}
-          >
-            翻訳結果
-          </Header>
-        }
-      >
-        <Grid
-          gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}
-        >
-          <div
-            key="transcribe"
-          >
-            <SpaceBetween 
-              alignItems="start"
-              size="xs"
-            >
-              {reversedTranscripts.length === 0 && 
-                <Container>
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    }
-                  >
-                    Transcript text will be appear here
-                  </Box>
-                </Container>
-              }
-              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-              {reversedTranscripts.map((t, i) => (
-                <Container
-                  key={i}
+    <AppLayout
+      maxContentWidth={Number.MAX_VALUE}
+      toolsHide={true}
+      navigationHide={true}
+      content={
+        <SpaceBetween size="s">
+          <Container
+            header={
+              <Header 
+              variant="h2" 
+              actions={
+                <SpaceBetween 
+                  direction="horizontal"
+                  alignItems="end"
+                  size="xs"
                 >
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    }
+                  <Button
+                    onClick={recording ? stopTranscription : _startTranscription}
+                    variant={recording ? 'primary' : 'normal'}                
                   >
-                    {t.transcript}
-                  </Box>
-                  
-                </Container>
-              ))}
-            </SpaceBetween>
-          </div>
-          
-          <div
-            key="translate"
-          >
-            <SpaceBetween 
-              alignItems="start"
-              size="xs"
-            >
-              {reversedTranslated.length === 0 && 
-                <Container>
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    }
-                    key={"reversedTranslated.length"}
-                  >
-                    Translated text will be appear here  
-                  </Box>
-                </Container>
-              }
+                    {recording ? 'Recording' : 'Start'}
+                  </Button>
 
-              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-              {reversedTranslated.map((t, i) => (
-                <Container
-                  key={i}
-                >
-                  <Box 
-                    variant="p"
-                    fontSize={
-                      fontSize?.value as BoxProps.FontSize 
-                    } 
+                  <Button 
+                    onClick={onCliclClear}
                   >
-                    {t.translated}
-                  </Box>
-                </Container>
-                
-              ))}
+                    Clear
+                  </Button>
+
+                  <Button onClick={exportHistory}>
+                    Export
+                  </Button>
+
+                  {/* <Button onClick={onClickSummarizeExec}>
+                    Summary
+                  </Button> */}
+                </SpaceBetween>
+              }
+            >
+                操作パネル
+              </Header>
+            }
+          >
+            <Grid
+              gridDefinition={
+                [
+                  { colspan: 4 }, { colspan: 4 }, { colspan: 4 }, 
+                  { colspan: 12 }
+                ]
+              }
+            >
+              <div>
+                <TextContent>
+                  <p>入力言語</p>
+                </TextContent>
+                <Select
+                  selectedOption={sourceLanguage}
+                  options={languages.map((language) => (
+                    { label: language.label, value: language.label }
+                  ))}
+                  onChange={(value) => setSourceLanguage(
+                    value.detail.selectedOption.label ?? ''
+                  )}
+                />
+              </div>
+              
+              <div>
+                <TextContent>
+                  <p>出力言語</p>
+                </TextContent>
+                <Select
+                  selectedOption={destLanguage}
+                  options={languages.map((language) => (
+                    { label: language.label, value: language.label }
+                  ))}
+                  onChange={(value) => setDestLanguage(
+                    value.detail.selectedOption.label ?? ''
+                  )}
+                />
+              </div>
+
+              <div>
+                <TextContent>
+                  <p>フォントサイズ</p>
+                </TextContent>
+                <Select
+                  selectedOption={fontSize ?? null}
+                  options={fontSizes.map((fontSize) => (
+                    { label: fontSize, value: fontSize }
+                  ))}
+                  onChange={(value) => setFontSize(
+                    value.detail.selectedOption ?? null
+                  )}
+                />
+              </div>
+            </Grid>
+
+
+          </Container>
+          
+          <Container
+            header={
+              <Header
+                variant="h2"
+                description={sourceLanguage.label + 'から' + destLanguage.label + 'への翻訳'}
+              >
+                翻訳結果
+              </Header>
+            }
+          >
+            <Grid
+              gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}
+            >
+              <div
+                key="transcribe"
+              >
+                <SpaceBetween 
+                  alignItems="start"
+                  size="xs"
+                >
+                  {reversedTranscripts.length === 0 && 
+                    <Container>
+                      <Box 
+                        variant="p"
+                        fontSize={
+                          fontSize?.value as BoxProps.FontSize 
+                        }
+                      >
+                        Transcript text will be appear here
+                      </Box>
+                    </Container>
+                  }
+                  {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                  {reversedTranscripts.map((t, i) => (
+                    <Container
+                      key={i}
+                    >
+                      <Box 
+                        variant="p"
+                        fontSize={
+                          fontSize?.value as BoxProps.FontSize 
+                        }
+                      >
+                        {t.transcript}
+                      </Box>
+                      
+                    </Container>
+                  ))}
+                </SpaceBetween>
+              </div>
+              
+              <div
+                key="translate"
+              >
+                <SpaceBetween 
+                  alignItems="start"
+                  size="xs"
+                >
+                  {reversedTranslated.length === 0 && 
+                    <Container>
+                      <Box 
+                        variant="p"
+                        fontSize={
+                          fontSize?.value as BoxProps.FontSize 
+                        }
+                        key={"reversedTranslated.length"}
+                      >
+                        Translated text will be appear here  
+                      </Box>
+                    </Container>
+                  }
+
+                  {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                  {reversedTranslated.map((t, i) => (
+                    <Container
+                      key={i}
+                    >
+                      <Box 
+                        variant="p"
+                        fontSize={
+                          fontSize?.value as BoxProps.FontSize 
+                        } 
+                      >
+                        {t.translated}
+                      </Box>
+                    </Container>
+                    
+                  ))}
+                </SpaceBetween>
+              </div>
+            </Grid>
+          </Container>
+        </SpaceBetween>
+      }
+      splitPanelOpen={true}
+      splitPanel={
+        <SplitPanel 
+          header="要約">
+            <SpaceBetween size="s">
+              <Container>
+                <SummaryContainer 
+                  transcripts={transcripts}
+                  destLanguage={destLanguage}
+                />
+
+              </Container>
             </SpaceBetween>
-          </div>
-        </Grid>
-      </Container>
-    </SpaceBetween>
+        </SplitPanel>
+      }
+    />
     
-
+    
   );
 }

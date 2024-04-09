@@ -4,7 +4,6 @@ import { Construct } from 'constructs';
 import { Auth } from './construct/auth';
 import { Api } from './construct/api';
 import { CommonWebAcl } from './construct/commonWebAcl';
-import { Transcribe } from './construct/transcribe';
 import { Web } from './construct/web';
 
 import * as cognito from 'aws-cdk-lib/aws-cognito';
@@ -58,12 +57,6 @@ export class EventSupporterStack extends cdk.Stack {
         webAclArn: regionalWaf.webAclArn,
       });
     }
-
-    new Transcribe(this, 'Transcribe', {
-      userPool: auth.userPool,
-      idPool: auth.idPool,
-      api: api.api,
-    });
 
     const web = new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,

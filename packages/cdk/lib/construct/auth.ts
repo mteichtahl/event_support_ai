@@ -108,6 +108,38 @@ export class Auth extends Construct {
       );
     }
 
+    // transcribe
+    idPool.authenticatedRole.attachInlinePolicy(
+      new Policy(this, 'GrantAccessTranscribeStream', {
+        statements: [
+          new PolicyStatement({
+            actions: [
+              'transcribe:StartStreamTranscriptionWebSocket',
+              'translate:TranslateText'
+            ],
+            resources: ['*'],
+          }),
+        ],
+      })
+    );
+
+    idPool.authenticatedRole.attachInlinePolicy(
+      new Policy(this, 'GrantAccessBedrock', {
+        statements: [
+          new PolicyStatement({
+            actions: [
+              "bedrock:InvokeModel",
+            "bedrock:InvokeModelWithResponseStream"
+            ],
+            resources: [
+              "arn:aws:bedrock:*::foundation-model/*"
+            ],
+          }),
+        ],
+      })
+    );
+
+
     this.client = client;
     this.userPool = userPool;
     this.idPool = idPool;

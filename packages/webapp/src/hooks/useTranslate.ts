@@ -26,7 +26,7 @@ const useTranslate = () => {
       isPartial: boolean;
       translated: string;
     }[]
->([]);
+  >([]);
 
   useLayoutEffect(() => {
     if (translateClient) return
