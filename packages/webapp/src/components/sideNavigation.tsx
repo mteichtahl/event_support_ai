@@ -1,7 +1,7 @@
 import * as React from "react";
 import SideNavigation from "@cloudscape-design/components/side-navigation";
 
-export default () => {
+export const SideNavi = () => {
   const [activeHref, setActiveHref] = React.useState(
     "#/page1"
   );

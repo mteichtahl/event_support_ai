@@ -1,9 +1,9 @@
 import { 
   BedrockRuntimeClient, 
-  InvokeModelCommand,
+  // InvokeModelCommand,
   InvokeModelWithResponseStreamCommand,
   InvokeModelWithResponseStreamCommandOutput,
-  InvokeModelCommandOutput,
+  // InvokeModelCommandOutput,
 } from "@aws-sdk/client-bedrock-runtime";
 
 import { useState, useLayoutEffect } from "react";
@@ -45,7 +45,9 @@ const useBedrock = () => {
   }, [bedrockClient]);
   
   const invokeBedrock = async (body: string): Promise<InvokeModelWithResponseStreamCommandOutput> => {
-    if (!bedrockClient) return
+    if (!bedrockClient) {
+      throw new Error("bedrockClient is not initialized");
+    }
 
     const response:InvokeModelWithResponseStreamCommandOutput = await bedrockClient.send(new InvokeModelWithResponseStreamCommand({
       body: body,

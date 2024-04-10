@@ -5,8 +5,7 @@ import Button from "@cloudscape-design/components/button";
 
 import { Link } from "@cloudscape-design/components";
 
-
-export default () => {
+export const ComponentList = () => {
   return (
     <Cards
       ariaLabels={{

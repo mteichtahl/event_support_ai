@@ -375,7 +375,6 @@ export default function App() {
                       </Box>
                     </Container>
                   }
-                  {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                   {reversedTranscripts.map((t, i) => (
                     <Container
                       key={i}
@@ -415,7 +414,6 @@ export default function App() {
                     </Container>
                   }
 
-                  {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                   {reversedTranslated.map((t, i) => (
                     <Container
                       key={i}

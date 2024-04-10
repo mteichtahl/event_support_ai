@@ -9,7 +9,7 @@ import { I18nProvider } from '@cloudscape-design/components/i18n';
 import messages from '@cloudscape-design/components/i18n/messages/all.en';
 
 import TopNavigation from "./components/topNavigation"
-import SideNavigation from "./components/sideNavigation"
+import { SideNavi } from "./components/sideNavigation"
 
 const LOCALE = 'ja';
 
@@ -31,7 +31,7 @@ export default function App() {
         // navigationHide={true}
         // navigationOpen={false}
         navigation={
-         <SideNavigation/>
+         <SideNavi/>
         }
         // notifications={}
         toolsHide={true}

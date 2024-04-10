@@ -4,8 +4,7 @@ import {
   Header,
 } from '@cloudscape-design/components';
 
-import List from "./list"
-
+import { ComponentList } from "./list"
 
 
 const App: React.FC = () => {
@@ -24,7 +23,7 @@ const App: React.FC = () => {
           </Header>
         }
       >
-      <List />
+      <ComponentList />
         
       </Container>
     </ContentLayout>
