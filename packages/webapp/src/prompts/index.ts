@@ -14,6 +14,5 @@ export type SummarizeParams = {
 
 
 export interface Prompter {
-  systemContext(pathname: string): string;
   summarizePrompt(params: SummarizeParams): string;
 }

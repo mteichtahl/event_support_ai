@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import debounce from 'lodash.debounce';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Container,
@@ -30,7 +29,6 @@ interface Props{
 }
 
 const modelId = import.meta.env.VITE_APP_MODEL_ID;
-const context = "あなたは日英同時通訳の支援をするエージェントです。現在進行中の会話の履歴を使用して、直近の会話について要約してください。日本語で回答してください。"
 
 const SummaryContainer: React.FC<Props> = (props) => {
   
@@ -46,19 +44,21 @@ const SummaryContainer: React.FC<Props> = (props) => {
       // プロンプト生成
       const prompt = prompter.summarizePrompt({
         sentence: props.transcripts.map(({ transcript }) => transcript).join(''),
-        context,
       })
+      console.log(prompt)
 
       const payload = {
-        max_tokens_to_sample: 1000,
-        temperature: 0.5,
+        max_tokens_to_sample: 2000,
+        temperature: 0.999,
         top_k: 250,
         top_p: 1,
         stop_sequences: ["\n\nHuman:"],
-        prompt: `\n\nHuman: ${prompt}\n\nAssistant:`,
+        prompt: `\n\nHuman: ${prompt}`,
       }
 
       const response = await invokeBedrock(JSON.stringify(payload))
+      if (!response) return () => clearInterval(interval)
+      
       let completion = "";
       if (response.body) {
         const textDecoder = new TextDecoder("utf-8");
@@ -66,25 +66,22 @@ const SummaryContainer: React.FC<Props> = (props) => {
         for await (const stream of response.body) {
           const chunk = textDecoder.decode(stream.chunk?.bytes);
           completion = completion + JSON.parse(chunk)["completion"];
-          console.log(completion)
+          // console.log(completion)
           setSummarizedText(completion)
         }
       }
       }, 1000 * 60);
       return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   return (
     <SpaceBetween size="s">
-      <Container>
       <Box 
         variant="p"
       >
-        {/* props.transcripts[*].transcriptの文字列を結合する */}
-        {summarizedText}
+        {summarizedText ? summarizedText : "ここに要約結果を表示します"}
       </Box>
-        
-      </Container>
     </SpaceBetween>
     
   );

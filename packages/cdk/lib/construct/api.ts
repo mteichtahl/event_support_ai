@@ -11,7 +11,7 @@ export interface BackendApiProps {}
 
 export class Api extends Construct {
   readonly api: RestApi;
-  readonly modelIds: string[];
+  readonly modelId: string;
   readonly multiModalModelIds: string[];
   readonly imageGenerationModelIds: string[];
 
@@ -21,9 +21,7 @@ export class Api extends Construct {
     super(scope, id);
 
     // Model IDs
-    const modelIds: string[] = this.node.tryGetContext('modelIds') || [
-      'anthropic.claude-3-sonnet-20240229-v1:0',
-    ];
+    const modelId: string = this.node.tryGetContext('modelId') || 'anthropic.claude-3-sonnet-20240229-v1:0';
     const imageGenerationModelIds: string[] = this.node.tryGetContext(
       'imageGenerationModelIds'
     ) || ['stability.stable-diffusion-xl-v1'];
@@ -59,7 +57,7 @@ export class Api extends Construct {
     });
   
     this.api = api;
-    this.modelIds = modelIds;
+    this.modelId = modelId;
     this.multiModalModelIds = multiModalModelIds;
     this.imageGenerationModelIds = imageGenerationModelIds;
     

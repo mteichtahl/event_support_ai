@@ -66,7 +66,7 @@ export class EventSupporterStack extends cdk.Stack {
       selfSignUpEnabled,
       webAclId: props.webAclId,
       modelRegion: api.modelRegion,
-      modelIds: api.modelIds,
+      modelId: api.modelId,
       multiModalModelIds: api.multiModalModelIds,
       imageGenerationModelIds: api.imageGenerationModelIds,
     });

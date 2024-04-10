@@ -44,9 +44,9 @@ const useBedrock = () => {
 
   }, [bedrockClient]);
   
-  const invokeBedrock = async (body: string): Promise<InvokeModelWithResponseStreamCommandOutput> => {
+  const invokeBedrock = async (body: string): Promise<InvokeModelWithResponseStreamCommandOutput| undefined> => {
     if (!bedrockClient) {
-      throw new Error("bedrockClient is not initialized");
+      return
     }
 
     const response:InvokeModelWithResponseStreamCommandOutput = await bedrockClient.send(new InvokeModelWithResponseStreamCommand({

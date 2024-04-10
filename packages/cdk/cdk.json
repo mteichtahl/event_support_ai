@@ -18,7 +18,7 @@
   },
   "context": {
     "selfSignUpEnabled": true,
-    "allowedSignUpEmailDomains": null,
+    "allowedSignUpEmailDomains": ["amazon.co.jp"],
 
     "modelRegion": "us-east-1",
     "modelIds": [
@@ -27,7 +27,7 @@
 
     "allowedIpV4AddressRanges": null,
     "allowedIpV6AddressRanges": null,
-    "allowedCountryCodes": null,
+    "allowedCountryCodes": ["JP"],
 
 
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,

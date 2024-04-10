@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from 'react-router-dom';
-import debounce from 'lodash.debounce';
+import _ from 'lodash';
 
 import { create } from 'zustand';
 import {
@@ -22,6 +22,7 @@ import {
 } from "@aws-sdk/client-transcribe-streaming";
 import useTranscribe from "../../hooks/useTranscribe";
 import useTranslate from "../../hooks/useTranslate";
+import { useDebounce } from "../../hooks/useDebounce";
 import SummaryContainer from "../../components/summaryContainer";
 
 interface Language {
@@ -109,6 +110,8 @@ export default function App() {
     clearTranslate
   } = useTranslate();
 
+  const debounce = useDebounce(300);
+
   const [fontSize, setFontSize] = useState<SelectProps.Option>({ label: "body-s", value: "body-s" });
 
   const reversedTranscripts = [...transcripts].reverse()
@@ -119,49 +122,25 @@ export default function App() {
     setSourceLanguage,
     destLanguage,
     setDestLanguage,
-
-    // summarizedSentence,
-    // setSummarizedSentence,
-    // clear
   } = useTranslatePageState();
 
-  // const { pathname, search } = useLocation();
+  const handleChange = (_item: {isPartial: boolean, transcript: string}) => {
+    debounce(() => {
+      startTranslate(
+        _item, 
+        sourceLanguage.translateCode || 'ja',
+        destLanguage.translateCode || 'en'
+      )
+    });
+  };
 
-  // const {
-  //   getModelId,
-  //   setModelId,
-  //   loading,
-  //   messages,
-  //   postChat,
-  //   clear: clearChat,
-  // } = useChat(pathname);
-  // const { modelIds: availableModels } = MODELS;
-  // const modelId = getModelId();
-  // const prompter = useMemo(() => {
-  //   return getPrompter(modelId);
-  // }, [modelId]);
-  
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onTranslateTextChange = useCallback(
-    debounce(
-      (
-        _item: {isPartial: boolean, transcript: string},
-        _sourceLanguage: string,
-        _destLanguage: string,
-      ) => {
-        startTranslate(_item, _sourceLanguage || 'ja' , _destLanguage || 'en')
-      }, 1000
-    ),
-    [startTranslate]
-  )
   const transcriptsRef = useRef(transcripts); 
   useEffect(() => {
     // 要素が追加された時の処理
     const added = transcripts.filter(item => !transcriptsRef.current.includes(item));
     // 追加要素のみ出力
     added.forEach((item) => {
-      onTranslateTextChange(item, sourceLanguage.translateCode || 'ja' ,destLanguage.translateCode || 'en')
+      handleChange(item)
     });
     transcriptsRef.current = transcripts;
     
@@ -176,44 +155,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  // useEffect(() => {
-  //   const _modelId = !modelId ? availableModels[0] : modelId;
-  //   if (search !== '') {
-  //     const params = queryString.parse(search) as SummarizePageQueryParams;
-  //     setModelId(
-  //       availableModels.includes(params.modelId ?? '')
-  //         ? params.modelId!
-  //         : _modelId
-  //     );
-  //   } else {
-  //     setModelId(_modelId);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [modelId, availableModels, search]);
-
-  // const getSummary = (sentence: string, context: string) => {
-  //   postChat(
-  //     prompter.summarizePrompt({
-  //       sentence,
-  //       context,
-  //     }),
-  //     true
-  //   );
-  // };
-
-  // useEffect(() => {
-  //   if (messages.length === 0) return;
-  //   const _lastMessage = messages[messages.length - 1];
-  //   if (_lastMessage.role !== 'assistant') return;
-  //   const _response = messages[messages.length - 1].content;
-  //   setSummarizedSentence(_response.trim());
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [messages]);
-
   const onCliclClear = async () => {
     clearTranslate()
     clearTranscripts()
-    // clearChat();
     // clear();
   }
 
@@ -233,14 +177,6 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
   }
-
-  // const onClickSummarizeExec = useCallback(() => {
-  //   if (loading) return;
-  //   const sentence = transcripts.map(t => t.transcript).join('\n'); 
-    
-  //   getSummary(sentence, '');
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [transcripts, loading]);
 
   return (
     <AppLayout
