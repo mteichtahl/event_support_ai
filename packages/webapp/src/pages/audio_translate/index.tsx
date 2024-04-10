@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from 'react-router-dom';
-import _ from 'lodash';
 
 import { create } from 'zustand';
 import {
@@ -225,8 +224,7 @@ export default function App() {
             <Grid
               gridDefinition={
                 [
-                  { colspan: 4 }, { colspan: 4 }, { colspan: 4 }, 
-                  { colspan: 12 }
+                  { colspan: 4 }, { colspan: 4 }, { colspan: 4 }
                 ]
               }
             >
@@ -383,6 +381,7 @@ export default function App() {
                   transcripts={transcripts}
                   destLanguage={destLanguage}
                   fontSize={fontSize}
+                  activeFlag={recording}
                 />
 
               </Container>

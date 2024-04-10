@@ -6,7 +6,6 @@ import {
   // InvokeModelCommandOutput,
 } from "@aws-sdk/client-bedrock-runtime";
 
-import { useState, useLayoutEffect } from "react";
 import { Auth } from 'aws-amplify';
 // import useHttp from '../hooks/useHttp';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
@@ -20,42 +19,38 @@ const idPoolId = import.meta.env.VITE_APP_IDENTITY_POOL_ID;
 const providerName = `cognito-idp.${region}.amazonaws.com/${userPoolId}`;
 
 
+const getBedrockClient = async () =>{
+  const data  = await Auth.currentSession()
+  return new BedrockRuntimeClient({
+    region,
+    credentials: fromCognitoIdentityPool({
+      client: cognito,
+      identityPoolId: idPoolId,
+      logins: {
+        [providerName]: data.getIdToken().getJwtToken(),
+      },
+    }),
+  })
+}
+
 const useBedrock = () => {
   // const http = useHttp();
-  const [bedrockClient, setBedrockClient] = useState<BedrockRuntimeClient>();
+  // const [bedrockClient, setBedrockClient] = useState<BedrockRuntimeClient>();
 
-  useLayoutEffect(() => {
-    // break if already set
-    if (bedrockClient) return
-
-    Auth.currentSession().then(data => {
-      const client = new BedrockRuntimeClient({
-        region,
-        credentials: fromCognitoIdentityPool({
-          client: cognito,
-          identityPoolId: idPoolId,
-          logins: {
-            [providerName]: data.getIdToken().getJwtToken(),
-          },
-        }),
-      });
-      setBedrockClient(client)
-    })
-
-  }, [bedrockClient]);
+  const invokeBedrock = async (body: string) => {
+    console.log(body)
+    try{
+      const bedrockClient = await getBedrockClient()
+      const response:InvokeModelWithResponseStreamCommandOutput = await bedrockClient.send(new InvokeModelWithResponseStreamCommand({
+        body: body,
+        contentType: "application/json",
+        modelId: "anthropic.claude-instant-v1"
+      }))
   
-  const invokeBedrock = async (body: string): Promise<InvokeModelWithResponseStreamCommandOutput| undefined> => {
-    if (!bedrockClient) {
-      return
+      return response
+    }catch (e){
+      console.error(e)
     }
-
-    const response:InvokeModelWithResponseStreamCommandOutput = await bedrockClient.send(new InvokeModelWithResponseStreamCommand({
-      body: body,
-      contentType: "application/json",
-      modelId: "anthropic.claude-instant-v1"
-    }))
-
-    return response
   }
 
 

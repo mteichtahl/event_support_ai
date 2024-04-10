@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import {
   Box,
   BoxProps,
@@ -28,6 +28,7 @@ interface Props{
   transcripts: transcript[]
   destLanguage: destLanguage
   fontSize: SelectProps.Option
+  activeFlag: boolean
 }
 
 const modelId = import.meta.env.VITE_APP_MODEL_ID;
@@ -36,16 +37,35 @@ const SummaryContainer: React.FC<Props> = (props) => {
   
   const { invokeBedrock } = useBedrock()
   const [summarizedText, setSummarizedText] = useState<string>();
+  
+  // props.transcripts 要素に入力された値を ref で持ち直す
+  const inputVal = useRef("");
+  const activeFlag = useRef(true);
 
   const prompter = useMemo(() => {
     return getPrompter(modelId);
   }, []);
 
   useEffect(() => {
+    // props.transcriptsの値を逐次更新してuseRefに入れる
+    inputVal.current = props.transcripts.map(({ transcript }) => transcript).join('')
+  }, [props.transcripts])
+
+
+  useEffect(() => {
+    // props.activeFlagの値を逐次更新してuseRefに入れる
+    activeFlag.current = props.activeFlag
+  }, [props.activeFlag])
+
+  useEffect(() => {
     const interval = setInterval(async() => {
+      if (!activeFlag.current){
+        return
+      }
+
       // プロンプト生成
       const prompt = prompter.summarizePrompt({
-        sentence: props.transcripts.map(({ transcript }) => transcript).join(''),
+        sentence: inputVal.current,
       })
 
       const payload = {
@@ -58,7 +78,10 @@ const SummaryContainer: React.FC<Props> = (props) => {
       }
 
       const response = await invokeBedrock(JSON.stringify(payload))
-      if (!response) return () => clearInterval(interval)
+      if (!response){
+        console.error("response is null")
+        return
+      }
       
       let completion = "";
       if (response.body) {
@@ -67,10 +90,11 @@ const SummaryContainer: React.FC<Props> = (props) => {
         for await (const stream of response.body) {
           const chunk = textDecoder.decode(stream.chunk?.bytes);
           completion = completion + JSON.parse(chunk)["completion"];
+          // console.log(completion)
           setSummarizedText(completion)
         }
       }
-      }, 1000 * 30);
+      }, 1000 * 60);
       return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
