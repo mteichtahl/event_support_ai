@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
-  Container,
+  BoxProps,
   SpaceBetween,
+  SelectProps,
 } from '@cloudscape-design/components';
 import {
   LanguageCode
@@ -26,6 +27,7 @@ type destLanguage = {
 interface Props{
   transcripts: transcript[]
   destLanguage: destLanguage
+  fontSize: SelectProps.Option
 }
 
 const modelId = import.meta.env.VITE_APP_MODEL_ID;
@@ -45,7 +47,6 @@ const SummaryContainer: React.FC<Props> = (props) => {
       const prompt = prompter.summarizePrompt({
         sentence: props.transcripts.map(({ transcript }) => transcript).join(''),
       })
-      console.log(prompt)
 
       const payload = {
         max_tokens_to_sample: 2000,
@@ -66,11 +67,10 @@ const SummaryContainer: React.FC<Props> = (props) => {
         for await (const stream of response.body) {
           const chunk = textDecoder.decode(stream.chunk?.bytes);
           completion = completion + JSON.parse(chunk)["completion"];
-          // console.log(completion)
           setSummarizedText(completion)
         }
       }
-      }, 1000 * 60);
+      }, 1000 * 30);
       return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -79,6 +79,9 @@ const SummaryContainer: React.FC<Props> = (props) => {
     <SpaceBetween size="s">
       <Box 
         variant="p"
+        fontSize={
+          props.fontSize?.value as BoxProps.FontSize 
+        }
       >
         {summarizedText ? summarizedText : "ここに要約結果を表示します"}
       </Box>

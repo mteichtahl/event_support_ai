@@ -374,12 +374,15 @@ export default function App() {
       splitPanelOpen={true}
       splitPanel={
         <SplitPanel 
-          header="要約">
+          header="要約"
+          hidePreferencesButton={true}
+        >
             <SpaceBetween size="s">
               <Container>
                 <SummaryContainer 
                   transcripts={transcripts}
                   destLanguage={destLanguage}
+                  fontSize={fontSize}
                 />
 
               </Container>
