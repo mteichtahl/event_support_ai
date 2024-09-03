@@ -12,7 +12,7 @@ Amazon Transcribeを使用して音声を文字起こしし、Amazon Translate�
 画面下部の要約画面では、文字起こしデータから直近の話題について要約を行います。
 
 
-
+![](./docs/images/逐次翻訳画面.png)
 
 ## 構築方法
 
