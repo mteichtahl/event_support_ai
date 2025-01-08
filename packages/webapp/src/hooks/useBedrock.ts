@@ -7,7 +7,6 @@ import {
 } from "@aws-sdk/client-bedrock-runtime";
 
 import { Auth } from 'aws-amplify';
-// import useHttp from '../hooks/useHttp';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 
@@ -34,9 +33,6 @@ const getBedrockClient = async () =>{
 }
 
 const useBedrock = () => {
-  // const http = useHttp();
-  // const [bedrockClient, setBedrockClient] = useState<BedrockRuntimeClient>();
-
   const invokeBedrock = async (body: string) => {
     console.log(body)
     try{
