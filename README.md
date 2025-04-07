@@ -5,7 +5,9 @@
 
 - 日本語から英語、英語から日本語など、設定した言語でニアリアルタイムに翻訳をします。
 Amazon Transcribeを使用して音声を文字起こしし、Amazon Translateで逐次翻訳をします。
-`VB-CABLE Virtual Audio Device` などを使用することにより、パソコンの音声出力をブラウザの音声入力に渡すことができれば、Youtube等の音声に対して逐次翻訳することも可能
+`BlackHole2` などを使用することにより、パソコンの音声出力をブラウザの音声入力に渡すことができれば、Youtube等の音声に対して逐次翻訳することも可能
+
+  ![](./docs/images/BlackHole2の設定画面.png)
 
 > 注意: 逐次翻訳のためAmazon TranslateのAPIを高頻度で実行します。
 
