@@ -7,10 +7,9 @@ import MicrophoneStream from "microphone-stream";
 import { useState, useEffect } from "react";
 import update from "immutability-helper";
 import { Buffer } from "buffer";
-import { Auth } from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
-
 
 const pcmEncodeChunk = (chunk: Buffer) => {
   const input = MicrophoneStream.toRaw(chunk);
@@ -43,20 +42,32 @@ const useTranscribe = () => {
 
   useEffect(() => {
     if (transcribeClient) return 
-    Auth.currentSession().then(data => {
-      const transcribe = new TranscribeStreamingClient({
-        region,
-        credentials: fromCognitoIdentityPool({
-          client: cognito,
-          identityPoolId: idPoolId,
-          logins: {
-            [providerName]: data.getIdToken().getJwtToken(),
-          },
-        }),
-      });
-      setTranscribeClient(transcribe)
-      
-    })
+    
+    const initializeClient = async () => {
+      try {
+        const { tokens } = await fetchAuthSession();
+        
+        if (!tokens || !tokens.idToken) {
+          throw new Error('User is not authenticated');
+        }
+        
+        const transcribe = new TranscribeStreamingClient({
+          region,
+          credentials: fromCognitoIdentityPool({
+            client: cognito,
+            identityPoolId: idPoolId,
+            logins: {
+              [providerName]: tokens.idToken.toString(),
+            },
+          }),
+        });
+        setTranscribeClient(transcribe);
+      } catch (error) {
+        console.error('Error initializing transcribe client:', error);
+      }
+    };
+    
+    initializeClient();
   }, [transcribeClient]);
 
   const startStream = async (mic: MicrophoneStream, languageCode: LanguageCode) => {

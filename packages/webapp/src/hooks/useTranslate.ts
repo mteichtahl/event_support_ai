@@ -4,7 +4,7 @@ import {
 } from "@aws-sdk/client-translate"
 import { useState, useLayoutEffect } from "react";
 import update from "immutability-helper";
-import { Auth } from 'aws-amplify';
+import { fetchAuthSession } from 'aws-amplify/auth';
 import { fromCognitoIdentityPool } from '@aws-sdk/credential-provider-cognito-identity';
 import { CognitoIdentityClient } from '@aws-sdk/client-cognito-identity';
 
@@ -30,19 +30,32 @@ const useTranslate = () => {
 
   useLayoutEffect(() => {
     if (translateClient) return
-    Auth.currentSession().then(data => {
-      const translate = new TranslateClient({
-        region,
-        credentials: fromCognitoIdentityPool({
-          client: cognito,
-          identityPoolId: idPoolId,
-          logins: {
-            [providerName]: data.getIdToken().getJwtToken(),
-          },
-        }),
-      });
-      setTranslateClient(translate)
-    })
+    
+    const initializeClient = async () => {
+      try {
+        const { tokens } = await fetchAuthSession();
+        
+        if (!tokens || !tokens.idToken) {
+          throw new Error('User is not authenticated');
+        }
+        
+        const translate = new TranslateClient({
+          region,
+          credentials: fromCognitoIdentityPool({
+            client: cognito,
+            identityPoolId: idPoolId,
+            logins: {
+              [providerName]: tokens.idToken.toString(),
+            },
+          }),
+        });
+        setTranslateClient(translate);
+      } catch (error) {
+        console.error('Error initializing translate client:', error);
+      }
+    };
+    
+    initializeClient();
   }, [translateClient]);
 
   const startTranslate = async (item: item, SourceLanguageCode: string, TargetLanguageCode: string) => {

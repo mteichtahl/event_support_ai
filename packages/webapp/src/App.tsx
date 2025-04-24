@@ -20,18 +20,8 @@ export default function App() {
       <TopNavigation />
       <AppLayout
         maxContentWidth={Number.MAX_VALUE}
-        // breadcrumbs={
-        //   <BreadcrumbGroup
-        //     items={[
-        //       { text: 'Home', href: '/' },
-        //       { text: 'audio_translate', href: '/audio_translate' },
-        //     ]}
-        //   />
-        // }
-        // navigationHide={true}
-        // navigationOpen={false}
         navigation={
-         <SideNavi/>
+          <SideNavi />
         }
         // notifications={}
         toolsHide={true}
@@ -40,7 +30,7 @@ export default function App() {
         content={
           <Outlet />
         }
-        // splitPanel={<SplitPanel header="Split panel header">Split panel content</SplitPanel>}
+      // splitPanel={<SplitPanel header="Split panel header">Split panel content</SplitPanel>}
       />
     </I18nProvider>
   );
