@@ -28,7 +28,7 @@ export class Auth extends Construct {
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
-    const userPool = new UserPool(this, 'UserPool', {
+    this.userPool = new UserPool(this, 'UserPool', {
       selfSignUpEnabled: props.selfSignUpEnabled,
       signInAliases: {
         username: false,
@@ -42,16 +42,16 @@ export class Auth extends Construct {
       },
     });
 
-    const client = userPool.addClient('client', {
+    this.client = this.userPool.addClient('client', {
       idTokenValidity: Duration.days(1),
     });
 
-    const idPool = new IdentityPool(this, 'IdentityPool', {
+    this.idPool= new IdentityPool(this, 'IdentityPool', {
       authenticationProviders: {
         userPools: [
           new UserPoolAuthenticationProvider({
-            userPool,
-            userPoolClient: client,
+            userPool: this.userPool,
+            userPoolClient: this.client,
           }),
         ],
       },
@@ -67,7 +67,7 @@ export class Auth extends Construct {
           : []),
       ];
 
-      idPool.authenticatedRole.attachInlinePolicy(
+      this.idPool.authenticatedRole.attachInlinePolicy(
         new Policy(this, 'SourceIpPolicy', {
           statements: [
             new PolicyStatement({
@@ -91,7 +91,7 @@ export class Auth extends Construct {
         this,
         'CheckEmailDomain',
         {
-          runtime: Runtime.NODEJS_18_X,
+          runtime: Runtime.NODEJS_20_X,
           entry: './lambda/checkEmailDomain.ts',
           timeout: Duration.minutes(15),
           environment: {
@@ -102,14 +102,14 @@ export class Auth extends Construct {
         }
       );
 
-      userPool.addTrigger(
+      this.userPool.addTrigger(
         UserPoolOperation.PRE_SIGN_UP,
         checkEmailDomainFunction
       );
     }
 
     // transcribe
-    idPool.authenticatedRole.attachInlinePolicy(
+    this.idPool.authenticatedRole.attachInlinePolicy(
       new Policy(this, 'GrantAccessTranscribeStream', {
         statements: [
           new PolicyStatement({
@@ -123,7 +123,7 @@ export class Auth extends Construct {
       })
     );
 
-    idPool.authenticatedRole.attachInlinePolicy(
+    this.idPool.authenticatedRole.attachInlinePolicy(
       new Policy(this, 'GrantAccessBedrock', {
         statements: [
           new PolicyStatement({
@@ -137,11 +137,6 @@ export class Auth extends Construct {
           }),
         ],
       })
-    );
-
-
-    this.client = client;
-    this.userPool = userPool;
-    this.idPool = idPool;
+    )
   }
 }
