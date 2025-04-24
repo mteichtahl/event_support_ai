@@ -10,7 +10,7 @@
     "web:build": "npm -w packages/webapp run build",
     "web:lint": "npm -w packages/webapp run lint",
     "cdk:deploy": "npm -w packages/cdk run cdk deploy -- --all",
-    "cdk:destroy": "npm -w packages/cdk run cdk destroy",
+    "cdk:destroy": "npm -w packages/cdk run cdk destroy -- --all",
     "cdk:lint": "npm -w packages/cdk run lint",
     "build:all": "npm -w run web:build"
   },
@@ -33,6 +33,6 @@
     "microphone-stream": "^6.0.1"
   },
   "engines": {
-    "node": "^18.0.0 || ^20.0.0 || >=22.0.0"
+    "node": "^18.0.0 || ^20.0.0"
   }
 }

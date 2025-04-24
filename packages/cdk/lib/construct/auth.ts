@@ -1,23 +1,13 @@
 import { Duration } from 'aws-cdk-lib';
-import {
-  UserPool,
-  UserPoolClient,
-  UserPoolOperation,
-} from 'aws-cdk-lib/aws-cognito';
-import {
-  IdentityPool,
-  UserPoolAuthenticationProvider,
-} from '@aws-cdk/aws-cognito-identitypool-alpha';
+import { UserPool, UserPoolClient } from 'aws-cdk-lib/aws-cognito';
+import { IdentityPool, UserPoolAuthenticationProvider } from '@aws-cdk/aws-cognito-identitypool-alpha';
 import { Effect, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 
 export interface AuthProps {
   selfSignUpEnabled: boolean;
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedSignUpEmailDomains: string[] | null | undefined;
+  allowedIpV4AddressRanges?: string[];
+  allowedIpV6AddressRanges?: string[];
 }
 
 export class Auth extends Construct {
@@ -28,8 +18,10 @@ export class Auth extends Construct {
   constructor(scope: Construct, id: string, props: AuthProps) {
     super(scope, id);
 
+    const { selfSignUpEnabled, allowedIpV4AddressRanges, allowedIpV6AddressRanges } = props
+
     this.userPool = new UserPool(this, 'UserPool', {
-      selfSignUpEnabled: props.selfSignUpEnabled,
+      selfSignUpEnabled: selfSignUpEnabled,
       signInAliases: {
         username: false,
         email: true,
@@ -39,6 +31,9 @@ export class Auth extends Construct {
         requireSymbols: true,
         requireDigits: true,
         minLength: 8,
+        requireLowercase: true,
+        passwordHistorySize: 5,
+        tempPasswordValidity: Duration.days(1),
       },
     });
 
@@ -46,7 +41,7 @@ export class Auth extends Construct {
       idTokenValidity: Duration.days(1),
     });
 
-    this.idPool= new IdentityPool(this, 'IdentityPool', {
+    this.idPool = new IdentityPool(this, 'IdentityPool', {
       authenticationProviders: {
         userPools: [
           new UserPoolAuthenticationProvider({
@@ -59,12 +54,8 @@ export class Auth extends Construct {
 
     if (props.allowedIpV4AddressRanges || props.allowedIpV6AddressRanges) {
       const ipRanges = [
-        ...(props.allowedIpV4AddressRanges
-          ? props.allowedIpV4AddressRanges
-          : []),
-        ...(props.allowedIpV6AddressRanges
-          ? props.allowedIpV6AddressRanges
-          : []),
+        ...(allowedIpV4AddressRanges || []),
+        ...(allowedIpV6AddressRanges || []),
       ];
 
       this.idPool.authenticatedRole.attachInlinePolicy(
@@ -82,29 +73,6 @@ export class Auth extends Construct {
             }),
           ],
         })
-      );
-    }
-
-    // Lambda
-    if (props.allowedSignUpEmailDomains) {
-      const checkEmailDomainFunction = new NodejsFunction(
-        this,
-        'CheckEmailDomain',
-        {
-          runtime: Runtime.NODEJS_20_X,
-          entry: './lambda/checkEmailDomain.ts',
-          timeout: Duration.minutes(15),
-          environment: {
-            ALLOWED_SIGN_UP_EMAIL_DOMAINS_STR: JSON.stringify(
-              props.allowedSignUpEmailDomains
-            ),
-          },
-        }
-      );
-
-      this.userPool.addTrigger(
-        UserPoolOperation.PRE_SIGN_UP,
-        checkEmailDomainFunction
       );
     }
 
@@ -129,7 +97,7 @@ export class Auth extends Construct {
           new PolicyStatement({
             actions: [
               "bedrock:InvokeModel",
-            "bedrock:InvokeModelWithResponseStream"
+              "bedrock:InvokeModelWithResponseStream"
             ],
             resources: [
               "arn:aws:bedrock:*::foundation-model/*"

@@ -3,9 +3,9 @@ import { Construct } from 'constructs';
 
 export interface CommonWebAclProps {
   scope: 'REGIONAL' | 'CLOUDFRONT';
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
+  allowedIpV4AddressRanges: string[];
+  allowedIpV6AddressRanges: string[];
+  allowedCountryCodes: string[];
 }
 
 export class CommonWebAcl extends Construct {
@@ -13,6 +13,8 @@ export class CommonWebAcl extends Construct {
 
   constructor(scope: Construct, id: string, props: CommonWebAclProps) {
     super(scope, id);
+
+    const { allowedCountryCodes, allowedIpV4AddressRanges, allowedIpV6AddressRanges, scope:_scope} = props;
 
     const rules: CfnWebACLProps['rules'] = [];
 
@@ -36,25 +38,25 @@ export class CommonWebAcl extends Construct {
       },
     });
 
-    if (props.allowedIpV4AddressRanges) {
+    if (allowedIpV4AddressRanges) {
       const wafIPv4Set = new CfnIPSet(this, `IPv4Set${id}`, {
         ipAddressVersion: 'IPV4',
-        scope: props.scope,
-        addresses: props.allowedIpV4AddressRanges,
+        scope: _scope,
+        addresses: allowedIpV4AddressRanges,
       });
       rules.push(generateIpSetRule(1, `IpV4SetRule${id}`, wafIPv4Set.attrArn));
     }
 
-    if (props.allowedIpV6AddressRanges) {
+    if (allowedIpV6AddressRanges) {
       const wafIPv6Set = new CfnIPSet(this, `IPv6Set${id}`, {
         ipAddressVersion: 'IPV6',
-        scope: props.scope,
-        addresses: props.allowedIpV6AddressRanges,
+        scope: _scope,
+        addresses: allowedIpV6AddressRanges,
       });
       rules.push(generateIpSetRule(2, `IpV6SetRule${id}`, wafIPv6Set.attrArn));
     }
 
-    if (props.allowedCountryCodes) {
+    if (allowedCountryCodes?.length >= 1) {
       rules.push({
         priority: 3,
         name: `GeoMatchSetRule${id}`,
@@ -66,23 +68,22 @@ export class CommonWebAcl extends Construct {
         },
         statement: {
           geoMatchStatement: {
-            countryCodes: props.allowedCountryCodes,
+            countryCodes: allowedCountryCodes,
           },
         },
       });
     }
 
-    const webAcl = new CfnWebACL(this, `WebAcl${id}`, {
+    this.webAclArn = new CfnWebACL(this, `WebAcl${id}`, {
       defaultAction: { block: {} },
       name: `WebAcl${id}`,
-      scope: props.scope,
+      scope: _scope,
       visibilityConfig: {
         cloudWatchMetricsEnabled: true,
         sampledRequestsEnabled: true,
         metricName: `WebAcl${id}`,
       },
       rules: rules,
-    });
-    this.webAclArn = webAcl.attrArn;
+    }).attrArn
   }
 }

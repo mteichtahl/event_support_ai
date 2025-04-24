@@ -3,9 +3,9 @@ import { Construct } from 'constructs';
 import { CommonWebAcl } from './construct/commonWebAcl';
 
 interface CloudFrontWafStackProps extends StackProps {
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
+  allowedIpV4AddressRanges?: string[];
+  allowedIpV6AddressRanges?: string[];
+  allowedCountryCodes?: string[];
 }
 
 export class CloudFrontWafStack extends Stack {
@@ -15,17 +15,18 @@ export class CloudFrontWafStack extends Stack {
   constructor(scope: Construct, id: string, props: CloudFrontWafStackProps) {
     super(scope, id, props);
 
-    const webAcl = new CommonWebAcl(this, `WebAcl${id}`, {
+    const { allowedCountryCodes, allowedIpV4AddressRanges, allowedIpV6AddressRanges} = props;
+
+    this.webAcl = new CommonWebAcl(this, `WebAcl${id}`, {
       scope: 'CLOUDFRONT',
-      allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-      allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowedCountryCodes: props.allowedCountryCodes,
+      allowedIpV4AddressRanges: allowedIpV4AddressRanges || [],
+      allowedIpV6AddressRanges: allowedIpV6AddressRanges || [],
+      allowedCountryCodes: allowedCountryCodes || [],
     });
 
     this.webAclArn = new CfnOutput(this, 'WebAclId', {
-      value: webAcl.webAclArn,
+      value: this.webAcl.webAclArn,
     });
 
-    this.webAcl = webAcl;
   }
 }

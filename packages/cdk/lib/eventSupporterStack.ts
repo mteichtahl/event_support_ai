@@ -11,28 +11,25 @@ import { CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 
 interface CustomStackProps extends StackProps {
   webAclId?: string;
-  allowedIpV4AddressRanges: string[] | null;
-  allowedIpV6AddressRanges: string[] | null;
-  allowedCountryCodes: string[] | null;
+  allowedIpV4AddressRanges?: string[];
+  allowedIpV6AddressRanges?: string[];
+  allowedCountryCodes?: string[];
 }
 
 export class EventSupporterStack extends cdk.Stack {
-  public readonly userPool: cognito.UserPool;
-  public readonly userPoolClient: cognito.UserPoolClient;
 
   constructor(scope: Construct, id: string, props: CustomStackProps) {
     super(scope, id, props);
 
-    const selfSignUpEnabled: boolean =
-      this.node.tryGetContext('selfSignUpEnabled')!;
-    const allowedSignUpEmailDomains: string[] | null | undefined =
-      this.node.tryGetContext('allowedSignUpEmailDomains');
+    const { allowedCountryCodes, allowedIpV4AddressRanges, allowedIpV6AddressRanges, webAclId } = props;
+
+    const selfSignUpEnabled = this.node.tryGetContext('selfSignUpEnabled');
+
 
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
-      allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-      allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-      allowedSignUpEmailDomains
+      allowedIpV4AddressRanges: allowedIpV4AddressRanges,
+      allowedIpV6AddressRanges: allowedIpV6AddressRanges,
     });
 
     const api = new Api(this, 'API', {});
@@ -44,27 +41,29 @@ export class EventSupporterStack extends cdk.Stack {
     ) {
       const regionalWaf = new CommonWebAcl(this, 'RegionalWaf', {
         scope: 'REGIONAL',
-        allowedIpV4AddressRanges: props.allowedIpV4AddressRanges,
-        allowedIpV6AddressRanges: props.allowedIpV6AddressRanges,
-        allowedCountryCodes: props.allowedCountryCodes,
+        allowedIpV4AddressRanges: allowedIpV4AddressRanges || [],
+        allowedIpV6AddressRanges: allowedIpV6AddressRanges || [],
+        allowedCountryCodes: allowedCountryCodes || [],
       });
+
       new CfnWebACLAssociation(this, 'ApiWafAssociation', {
         resourceArn: api.api.deploymentStage.stageArn,
         webAclArn: regionalWaf.webAclArn,
       });
+
       new CfnWebACLAssociation(this, 'UserPoolWafAssociation', {
         resourceArn: auth.userPool.userPoolArn,
         webAclArn: regionalWaf.webAclArn,
       });
     }
 
-    const web = new Web(this, 'Api', {
+    new Web(this, 'Api', {
       apiEndpointUrl: api.api.url,
       userPoolId: auth.userPool.userPoolId,
       userPoolClientId: auth.client.userPoolClientId,
       idPoolId: auth.idPool.identityPoolId,
       selfSignUpEnabled,
-      webAclId: props.webAclId,
+      webAclId: webAclId,
       modelRegion: api.modelRegion,
       modelId: api.modelId,
       multiModalModelIds: api.multiModalModelIds,
@@ -72,13 +71,8 @@ export class EventSupporterStack extends cdk.Stack {
     });
 
     new CfnOutput(this, 'UserPoolId', { value: auth.userPool.userPoolId });
-    new CfnOutput(this, 'UserPoolClientId', {
-      value: auth.client.userPoolClientId,
-    });
+    new CfnOutput(this, 'UserPoolClientId', { value: auth.client.userPoolClientId });
     new CfnOutput(this, 'IdPoolId', { value: auth.idPool.identityPoolId });
 
-
-    this.userPool = auth.userPool;
-    this.userPoolClient = auth.client;
   }
 }

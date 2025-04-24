@@ -18,15 +18,13 @@
   },
   "context": {
     "selfSignUpEnabled": true,
-    "allowedSignUpEmailDomains": ["amazon.co.jp","amazon.com"],
-
     "modelRegion": "us-east-1",
     "modelIds": [
       "anthropic.claude-3-sonnet-20240229-v1:0"
     ],
-    "allowedIpV4AddressRanges": null,
-    "allowedIpV6AddressRanges": null,
-    "allowedCountryCodes": ["JP","AU"],
+    "allowedIpV4AddressRanges": [],
+    "allowedIpV6AddressRanges": [],
+    "allowedCountryCodes": [],
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
