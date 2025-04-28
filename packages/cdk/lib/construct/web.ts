@@ -23,6 +23,8 @@ export class Web extends Construct {
 
   constructor(scope: Construct, id: string, props: WebProps) {
     super(scope, id);
+ 
+    const { webAclId } = props;
 
     const commonBucketProps: s3.BucketProps = {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
@@ -58,13 +60,9 @@ export class Web extends Construct {
       }
     );
 
-    if (props.webAclId) {
-      const existingCloudFrontWebDistribution = cloudFrontWebDistribution.node
-        .defaultChild as CfnDistribution;
-      existingCloudFrontWebDistribution.addPropertyOverride(
-        'DistributionConfig.WebACLId',
-        props.webAclId
-      );
+    if (webAclId) {
+      const existingCloudFrontWebDistribution = cloudFrontWebDistribution.node.defaultChild as CfnDistribution;
+      existingCloudFrontWebDistribution.addPropertyOverride('DistributionConfig.WebACLId',webAclId);
     }
 
     new NodejsBuild(this, 'BuildWeb', {
@@ -91,10 +89,12 @@ export class Web extends Construct {
           ],
         },
       ],
+      nodejsVersion: 20,
       destinationBucket: s3BucketInterface,
       distribution: cloudFrontWebDistribution,
       outputSourceDirectory: './packages/webapp/dist',
-      buildCommands: ['npm ci', 'npm run web:build'],
+      buildCommands: ['npm ci', 'NODE_OPTIONS="--max-old-space-size=8192" npm run web:build'],
+
       buildEnvironment: {
         VITE_APP_API_ENDPOINT: props.apiEndpointUrl,
         VITE_APP_REGION: Stack.of(this).region,
@@ -102,7 +102,6 @@ export class Web extends Construct {
         VITE_APP_USER_POOL_CLIENT_ID: props.userPoolClientId,
         VITE_APP_IDENTITY_POOL_ID: props.idPoolId,
         VITE_APP_SELF_SIGN_UP_ENABLED: props.selfSignUpEnabled.toString(),
-        
         VITE_APP_MODEL_REGION: props.modelRegion,
         VITE_APP_MODEL_ID: JSON.stringify(props.modelId),
         VITE_APP_MULTI_MODAL_MODEL_IDS: JSON.stringify(

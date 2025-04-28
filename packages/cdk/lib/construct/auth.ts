@@ -58,22 +58,24 @@ export class Auth extends Construct {
         ...(allowedIpV6AddressRanges || []),
       ];
 
-      this.idPool.authenticatedRole.attachInlinePolicy(
-        new Policy(this, 'SourceIpPolicy', {
-          statements: [
-            new PolicyStatement({
-              effect: Effect.DENY,
-              resources: ['*'],
-              actions: ['*'],
-              conditions: {
-                NotIpAddress: {
-                  'aws:SourceIp': ipRanges,
+      if (ipRanges.length > 0) {
+        this.idPool.authenticatedRole.attachInlinePolicy(
+          new Policy(this, 'SourceIpPolicy', {
+            statements: [
+              new PolicyStatement({
+                effect: Effect.DENY,
+                resources: ['*'],
+                actions: ['*'],
+                conditions: {
+                  NotIpAddress: {
+                    'aws:SourceIp': ipRanges,
+                  },
                 },
-              },
-            }),
-          ],
-        })
-      );
+              }),
+            ],
+          })
+        );
+      }
     }
 
     // transcribe

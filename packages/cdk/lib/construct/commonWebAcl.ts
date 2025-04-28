@@ -3,9 +3,9 @@ import { Construct } from 'constructs';
 
 export interface CommonWebAclProps {
   scope: 'REGIONAL' | 'CLOUDFRONT';
-  allowedIpV4AddressRanges: string[];
-  allowedIpV6AddressRanges: string[];
-  allowedCountryCodes: string[];
+  allowedIpV4AddressRanges?: string[];
+  allowedIpV6AddressRanges?: string[];
+  allowedCountryCodes?: string[];
 }
 
 export class CommonWebAcl extends Construct {
@@ -14,7 +14,7 @@ export class CommonWebAcl extends Construct {
   constructor(scope: Construct, id: string, props: CommonWebAclProps) {
     super(scope, id);
 
-    const { allowedCountryCodes, allowedIpV4AddressRanges, allowedIpV6AddressRanges, scope:_scope} = props;
+    const { allowedCountryCodes, allowedIpV4AddressRanges, allowedIpV6AddressRanges, scope: _scope } = props;
 
     const rules: CfnWebACLProps['rules'] = [];
 
@@ -38,7 +38,7 @@ export class CommonWebAcl extends Construct {
       },
     });
 
-    if (allowedIpV4AddressRanges) {
+    if (allowedIpV4AddressRanges && allowedIpV4AddressRanges.length >= 1) {
       const wafIPv4Set = new CfnIPSet(this, `IPv4Set${id}`, {
         ipAddressVersion: 'IPV4',
         scope: _scope,
@@ -47,7 +47,7 @@ export class CommonWebAcl extends Construct {
       rules.push(generateIpSetRule(1, `IpV4SetRule${id}`, wafIPv4Set.attrArn));
     }
 
-    if (allowedIpV6AddressRanges) {
+    if (allowedIpV6AddressRanges && allowedIpV6AddressRanges.length >= 1) {
       const wafIPv6Set = new CfnIPSet(this, `IPv6Set${id}`, {
         ipAddressVersion: 'IPV6',
         scope: _scope,
@@ -56,7 +56,7 @@ export class CommonWebAcl extends Construct {
       rules.push(generateIpSetRule(2, `IpV6SetRule${id}`, wafIPv6Set.attrArn));
     }
 
-    if (allowedCountryCodes?.length >= 1) {
+    if (allowedCountryCodes && allowedCountryCodes?.length >= 1) {
       rules.push({
         priority: 3,
         name: `GeoMatchSetRule${id}`,
@@ -74,16 +74,24 @@ export class CommonWebAcl extends Construct {
       });
     }
 
-    this.webAclArn = new CfnWebACL(this, `WebAcl${id}`, {
-      defaultAction: { block: {} },
-      name: `WebAcl${id}`,
-      scope: _scope,
-      visibilityConfig: {
-        cloudWatchMetricsEnabled: true,
-        sampledRequestsEnabled: true,
-        metricName: `WebAcl${id}`,
-      },
-      rules: rules,
-    }).attrArn
+    if (rules.length > 0) {
+      this.webAclArn = new CfnWebACL(this, `WebAcl${id}`, {
+        defaultAction: {
+          block: {
+            customResponse: {
+              responseCode: 403
+            }
+          }
+        },
+        name: `WebAcl${id}`,
+        scope: _scope,
+        visibilityConfig: {
+          cloudWatchMetricsEnabled: true,
+          sampledRequestsEnabled: true,
+          metricName: `WebAcl${id}`,
+        },
+        rules: rules,
+      }).attrArn
+    } 
   }
 }

@@ -11,7 +11,7 @@ import messages from '@cloudscape-design/components/i18n/messages/all.en';
 import TopNavigation from "./components/topNavigation"
 import { SideNavi } from "./components/sideNavigation"
 
-const LOCALE = 'ja';
+const LOCALE = 'au';
 
 
 export default function App() {

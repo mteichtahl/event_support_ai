@@ -25,7 +25,6 @@ export class EventSupporterStack extends cdk.Stack {
 
     const selfSignUpEnabled = this.node.tryGetContext('selfSignUpEnabled');
 
-
     const auth = new Auth(this, 'Auth', {
       selfSignUpEnabled,
       allowedIpV4AddressRanges: allowedIpV4AddressRanges,
@@ -34,27 +33,26 @@ export class EventSupporterStack extends cdk.Stack {
 
     const api = new Api(this, 'API', {});
 
-    if (
-      props.allowedIpV4AddressRanges ||
-      props.allowedIpV6AddressRanges ||
-      props.allowedCountryCodes
-    ) {
+    if (allowedIpV4AddressRanges || allowedIpV6AddressRanges || allowedCountryCodes) {
       const regionalWaf = new CommonWebAcl(this, 'RegionalWaf', {
         scope: 'REGIONAL',
-        allowedIpV4AddressRanges: allowedIpV4AddressRanges || [],
-        allowedIpV6AddressRanges: allowedIpV6AddressRanges || [],
-        allowedCountryCodes: allowedCountryCodes || [],
+        allowedIpV4AddressRanges: allowedIpV4AddressRanges,
+        allowedIpV6AddressRanges: allowedIpV6AddressRanges,
+        allowedCountryCodes: allowedCountryCodes,
       });
 
-      new CfnWebACLAssociation(this, 'ApiWafAssociation', {
-        resourceArn: api.api.deploymentStage.stageArn,
-        webAclArn: regionalWaf.webAclArn,
-      });
+      if (regionalWaf.webAclArn) {
 
-      new CfnWebACLAssociation(this, 'UserPoolWafAssociation', {
-        resourceArn: auth.userPool.userPoolArn,
-        webAclArn: regionalWaf.webAclArn,
-      });
+        new CfnWebACLAssociation(this, 'ApiWafAssociation', {
+          resourceArn: api.api.deploymentStage.stageArn,
+          webAclArn: regionalWaf.webAclArn,
+        });
+
+        new CfnWebACLAssociation(this, 'UserPoolWafAssociation', {
+          resourceArn: auth.userPool.userPoolArn,
+          webAclArn: regionalWaf.webAclArn,
+        });
+      }
     }
 
     new Web(this, 'Api', {

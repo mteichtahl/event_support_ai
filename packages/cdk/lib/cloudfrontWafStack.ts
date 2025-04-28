@@ -19,9 +19,9 @@ export class CloudFrontWafStack extends Stack {
 
     this.webAcl = new CommonWebAcl(this, `WebAcl${id}`, {
       scope: 'CLOUDFRONT',
-      allowedIpV4AddressRanges: allowedIpV4AddressRanges || [],
-      allowedIpV6AddressRanges: allowedIpV6AddressRanges || [],
-      allowedCountryCodes: allowedCountryCodes || [],
+      allowedIpV4AddressRanges: allowedIpV4AddressRanges,
+      allowedIpV6AddressRanges: allowedIpV6AddressRanges,
+      allowedCountryCodes: allowedCountryCodes,
     });
 
     this.webAclArn = new CfnOutput(this, 'WebAclId', {

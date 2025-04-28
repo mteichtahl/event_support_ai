@@ -35,19 +35,16 @@ type StateType = {
   setSourceLanguage: (label: string) => void;
   destLanguage: Language;
   setDestLanguage: (label: string) => void;
-
-  // summarizedSentence: string;
-  // setSummarizedSentence: (s: string) => void;
   clear: () => void;
 };
 
 const languages: Language[] = [
-  { label: '英語', translateCode: 'en', transcribeCode: 'en-US' },
-  { label: '日本語', translateCode: 'ja', transcribeCode: 'ja-JP' },
+  { label: 'English', translateCode: 'en', transcribeCode: 'en-US' },
+  { label: 'Japanese', translateCode: 'ja', transcribeCode: 'ja-JP' },
   { label: '中国語', translateCode: 'zh', transcribeCode: 'zh-CN' },
-  { label: '韓国語', translateCode: 'ko', transcribeCode: 'ko-KR' },
-  { label: 'フランス語', translateCode: 'fr', transcribeCode: 'fr-FR' },
-  { label: 'ドイツ語', translateCode: 'de', transcribeCode: 'de-DE' },
+  { label: 'Korean', translateCode: 'ko', transcribeCode: 'ko-KR' },
+  { label: 'French', translateCode: 'fr', transcribeCode: 'fr-FR' },
+  { label: 'German', translateCode: 'de', transcribeCode: 'de-DE' },
 ];
 
 const fontSizes = [
