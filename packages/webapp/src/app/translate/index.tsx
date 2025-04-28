@@ -1,3 +1,18 @@
+/* 
+  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from 'react-router-dom';
 
@@ -41,7 +56,7 @@ type StateType = {
 const languages: Language[] = [
   { label: 'English', translateCode: 'en', transcribeCode: 'en-US' },
   { label: 'Japanese', translateCode: 'ja', transcribeCode: 'ja-JP' },
-  { label: '中国語', translateCode: 'zh', transcribeCode: 'zh-CN' },
+  { label: 'Chinese (Siomplified)', translateCode: 'zh', transcribeCode: 'zh-CN' },
   { label: 'Korean', translateCode: 'ko', transcribeCode: 'ko-KR' },
   { label: 'French', translateCode: 'fr', transcribeCode: 'fr-FR' },
   { label: 'German', translateCode: 'de', transcribeCode: 'de-DE' },
@@ -69,13 +84,11 @@ const useTranslatePageState = create<StateType>((set) => {
     ...INIT_STATE,
     setSourceLanguage: (label: string) => {
       set(() => ({
-        // languagesからlabelに一致するものを探す
         sourceLanguage: languages.find((language) => language.label === label) || INIT_STATE.sourceLanguage,
       }))
     },
     setDestLanguage: (label: string) => {
       set(() => ({
-        // languagesからlabelに一致するものを探す
         destLanguage: languages.find((language) => language.label === label) || INIT_STATE.destLanguage,
       }));
     },
@@ -132,15 +145,12 @@ export default function App() {
 
   const transcriptsRef = useRef(transcripts); 
   useEffect(() => {
-    // 要素が追加された時の処理
     const added = transcripts.filter(item => !transcriptsRef.current.includes(item));
-    // 追加要素のみ出力
     added.forEach((item) => {
       handleChange(item)
     });
     transcriptsRef.current = transcripts;
     
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [transcripts]);
 
   useEffect(() => {
@@ -148,7 +158,6 @@ export default function App() {
       setDestLanguage(
         state.destLanguage.label || languages[0].label
     )}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   const onCliclClear = async () => {
@@ -214,7 +223,7 @@ export default function App() {
                 </SpaceBetween>
               }
             >
-                操作パネル
+                Language Selection
               </Header>
             }
           >
@@ -227,7 +236,7 @@ export default function App() {
             >
               <div>
                 <TextContent>
-                  <p>入力言語</p>
+                  <p>From</p>
                 </TextContent>
                 <Select
                   selectedOption={sourceLanguage}
@@ -242,7 +251,7 @@ export default function App() {
               
               <div>
                 <TextContent>
-                  <p>出力言語</p>
+                  <p>To</p>
                 </TextContent>
                 <Select
                   selectedOption={destLanguage}
@@ -257,7 +266,7 @@ export default function App() {
 
               <div>
                 <TextContent>
-                  <p>フォントサイズ</p>
+                  <p>Font Size</p>
                 </TextContent>
                 <Select
                   selectedOption={fontSize ?? null}
@@ -278,9 +287,8 @@ export default function App() {
             header={
               <Header
                 variant="h2"
-                description={sourceLanguage.label + 'から' + destLanguage.label + 'への翻訳'}
               >
-                翻訳結果
+                Transcription
               </Header>
             }
           >
@@ -369,7 +377,7 @@ export default function App() {
       splitPanelOpen={true}
       splitPanel={
         <SplitPanel 
-          header="要約"
+          header="Summarization"
           hidePreferencesButton={true}
         >
             <SpaceBetween size="s">

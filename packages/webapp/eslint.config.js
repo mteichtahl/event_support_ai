@@ -16,11 +16,13 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+// import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import header from 'eslint-plugin-header'
 import { fileURLToPath } from 'url'
 import path from 'path'
+import boundaries from "eslint-plugin-boundaries";
+// import { settings } from './.eslintrc.cjs.poo'
 
 // Get the directory name of the current module
 const __filename = fileURLToPath(import.meta.url)
@@ -32,26 +34,86 @@ export default tseslint.config(
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
+    // languageOptions: {
+    //   ecmaVersion: 2020,
+    //   globals: globals.browser,
+    // },
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      header: header,
+      // 'react-refresh': reactRefresh,
+      header,
+      boundaries
+    },
+    settings: {
+      "boundaries/include": [ "src/**/*"],
+      "boundaries/elements": [
+        {
+          "mode": "full",
+          "type": "shared",
+          "pattern": [
+            "src/components/**/*",
+            "src/data/**/*",
+            "src/hooks/**/*",
+            "src/lib/**/*",
+            "src/localization/**/*",
+          ]
+        },
+        {
+          "mode": "full",
+          "type": "feature",
+          "capture": ["featureName"],
+          "pattern": ["src/features/*/**/*"]
+        },
+        {
+          "mode": "full",
+          "type": "prompts",
+          "capture": ["fileName"],
+          "pattern": ["src/prompts/*"]
+        },
+        {
+          "mode": "full",
+          "type": "app",
+          "capture": ["_", "fileName"],
+          "pattern": ["src/app/**/*"]
+        },
+        {
+          "mode": "full",
+          "type": "neverImport",
+          "pattern": ["src/*", "src/tasks/**/*"]
+        }
+      ]
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      '@typescript-eslint/no-empty-object-type': [0],
-      '@typescript-eslint/no-explicit-any': [0],
-      '@typescript-eslint/no-unsafe-function-type': ['warn'],
-      '@typescript-eslint/no-non-null-asserted-optional-chain': ['warn'],
-      'header/header': [2, path.join(__dirname, '..', 'LicenseHeader.txt')],
+      'header/header': [2, path.join(__dirname, '../..', 'LicenseHeader.txt')],
+      "boundaries/no-unknown": ["error"],
+      "boundaries/no-unknown-files": ["error"],
+      "boundaries/element-types": [
+        "error",
+        {
+          "default": "disallow",
+          "rules":[
+            {
+              "from": ["shared"],
+              "allow": ["shared"]
+            },
+            {
+              "from": ["feature"],
+              "allow": [
+                "shared",
+                ["feature", { "featureName": "${from.featureName}" }]
+              ]
+            },
+            {
+              "from": ["app", "neverImport"],
+              "allow": ["shared", "feature", "prompts"]
+            },
+            {
+              "from": ["app"],
+              "allow": [["app", { "fileName": "*.css" }]]
+            }
+          ]
+        }
+      ]
     },
   },
 )

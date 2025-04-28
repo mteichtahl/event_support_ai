@@ -1,23 +1,28 @@
-import * as React from "react";
-import SideNavigation from "@cloudscape-design/components/side-navigation";
+/* 
+  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+  
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+      http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+import * as CloudscapeSideNavigation  from "@cloudscape-design/components/side-navigation";
 
-export const SideNavi = () => {
-  const [activeHref, setActiveHref] = React.useState(
-    "#/page1"
-  );
+export const SideNavigation = () => {
   return (
-    <SideNavigation
-      activeHref={activeHref}
-      header={{ href: "#/", text: "メニュー" }}
-      onFollow={event => {
-        if (!event.detail.external) {
-          event.preventDefault();
-          setActiveHref(event.detail.href);
-        }
-      }}
+    <CloudscapeSideNavigation.default
+      // activeHref={activeHref}
+      header={{ href: "/", text: "Translator" }}
       items={[
-        { type: "link", text: "ホーム", href: "/" },
-        { type: "link", text: "リアルタイム翻訳", href: "/audio_translate" },
+        { type: "link", text: "Home", href: "/" },
+        { type: "link", text: "Translate", href: "/audio_translate" },
         { type: "divider" }
       ]}
     />
